@@ -4,10 +4,12 @@ Reproducible Research Course Project 1
 Reading in the data
 -------------------
 
-    setwd("G:/Coursera/Data Science/5-Reproducible Research")
-    dt <- read.csv("activity.csv", colClasses = c("numeric", "character","numeric"))
-    dt$date <- as.Date(dt$date,"%Y-%m-%d")
-    head(dt)
+``` r
+setwd("G:/Coursera/Data Science/5-Reproducible Research")
+dt <- read.csv("activity.csv", colClasses = c("numeric", "character","numeric"))
+dt$date <- as.Date(dt$date,"%Y-%m-%d")
+head(dt)
+```
 
     ##   steps       date interval
     ## 1    NA 2012-10-01        0
@@ -20,9 +22,11 @@ Reading in the data
 Calculating the total number of steps
 -------------------------------------
 
-    total <- aggregate(dt$steps , by= list(dt$date), FUN = sum)
-    colnames(total) <- c("date","steps")
-    head(total)
+``` r
+total <- aggregate(dt$steps , by= list(dt$date), FUN = sum)
+colnames(total) <- c("date","steps")
+head(total)
+```
 
     ##         date steps
     ## 1 2012-10-01    NA
@@ -35,33 +39,43 @@ Calculating the total number of steps
 Calculating the mean and the median of the data
 -----------------------------------------------
 
-    mstep <- mean(total$steps, na.rm = TRUE)
-    mstep
+``` r
+mstep <- mean(total$steps, na.rm = TRUE)
+mstep
+```
 
     ## [1] 10766.19
 
-    median <- median(total$steps, na.rm = TRUE)
-    median
+``` r
+median <- median(total$steps, na.rm = TRUE)
+median
+```
 
     ## [1] 10765
 
 Plotting the histogram
 ----------------------
 
-    hist(total$steps, col = "blue", xlab = "Steps", main = "Total number of steps per day")
+``` r
+hist(total$steps, col = "blue", xlab = "Steps", main = "Total number of steps per day")
+```
 
-![](PA1_template_files/figure-markdown_strict/unnamed-chunk-4-1.png)<!-- -->
+![](PA1_template_files/figure-markdown_github/unnamed-chunk-4-1.png)<!-- -->
 
 Time series
 -----------
 
-    tseries <- tapply(dt$steps, dt$interval, mean, na.rm = TRUE)
-    plot(row.names(tseries), tseries,type = "l", col = "blue", xlab = "Time Interval" , ylab = "Average Steps")
+``` r
+tseries <- tapply(dt$steps, dt$interval, mean, na.rm = TRUE)
+plot(row.names(tseries), tseries,type = "l", col = "blue", xlab = "Time Interval" , ylab = "Average Steps")
+```
 
-![](PA1_template_files/figure-markdown_strict/unnamed-chunk-5-1.png)<!-- -->
+![](PA1_template_files/figure-markdown_github/unnamed-chunk-5-1.png)<!-- -->
 
-    minterval <- which.max(tseries)
-    names(minterval)
+``` r
+minterval <- which.max(tseries)
+names(minterval)
+```
 
     ## [1] "835"
 
@@ -70,21 +84,25 @@ Taking care of missing values
 
 Replacing the missing values using the mean.
 
-    missing <-sum(is.na(dt$steps))
-    missing
+``` r
+missing <-sum(is.na(dt$steps))
+missing
+```
 
     ## [1] 2304
 
-    newdt <- dt
+``` r
+newdt <- dt
 
-    replaceNA <- aggregate(steps ~ interval , data = newdt, FUN = mean)
-    for( i in 1:nrow(newdt)) {
-      if(is.na(newdt[i,1])) {
-        int <- newdt[i,3]
-        newdt[i,1] <- replaceNA[replaceNA$interval == int, "steps"]
-      }
-    }
-    head(replaceNA)
+replaceNA <- aggregate(steps ~ interval , data = newdt, FUN = mean)
+for( i in 1:nrow(newdt)) {
+  if(is.na(newdt[i,1])) {
+    int <- newdt[i,3]
+    newdt[i,1] <- replaceNA[replaceNA$interval == int, "steps"]
+  }
+}
+head(replaceNA)
+```
 
     ##   interval     steps
     ## 1        0 1.7169811
@@ -97,36 +115,44 @@ Replacing the missing values using the mean.
 Calculating new median and mean
 -------------------------------
 
-    ntotal <- aggregate(newdt$steps , by= list(newdt$date), FUN = sum)
-    colnames(ntotal) <- c("date","steps")
-    nmstep <- mean(ntotal$steps)
-    nmedian <- median(ntotal$steps)
+``` r
+ntotal <- aggregate(newdt$steps , by= list(newdt$date), FUN = sum)
+colnames(ntotal) <- c("date","steps")
+nmstep <- mean(ntotal$steps)
+nmedian <- median(ntotal$steps)
+```
 
 Comparing new and old data sets
 -------------------------------
 
-    par(mfrow = c(2,1))
-    hist(ntotal$steps, col = "red" , xlab = "Steps", main = "Total number of steps per days")
-    hist(total$steps, col = "blue", xlab = "Steps", main = "Total number of steps per day")
+``` r
+par(mfrow = c(2,1))
+hist(ntotal$steps, col = "red" , xlab = "Steps", main = "Total number of steps per days")
+hist(total$steps, col = "blue", xlab = "Steps", main = "Total number of steps per day")
+```
 
-![](PA1_template_files/figure-markdown_strict/unnamed-chunk-8-1.png)<!-- -->
+![](PA1_template_files/figure-markdown_github/unnamed-chunk-8-1.png)<!-- -->
 
 Comparing weekdays and weekends
 -------------------------------
 
-    bdata <- dt
-    bdata$steps[is.na(bdata$steps)] <- median(dt$steps, na.rm = TRUE)
-    bdata <- aggregate(steps ~ date + interval, data = bdata, sum, na.rm = TRUE)
+``` r
+bdata <- dt
+bdata$steps[is.na(bdata$steps)] <- median(dt$steps, na.rm = TRUE)
+bdata <- aggregate(steps ~ date + interval, data = bdata, sum, na.rm = TRUE)
 
-    bdata$date <- as.Date(bdata$date)    
-    bdata$day <- weekdays(bdata$date)
-    bdata$weekend <- as.factor(ifelse(bdata$day == "Saturday" | bdata$day == "Sunday", "weekend", "weekday"))
+bdata$date <- as.Date(bdata$date)    
+bdata$day <- weekdays(bdata$date)
+bdata$weekend <- as.factor(ifelse(bdata$day == "Saturday" | bdata$day == "Sunday", "weekend", "weekday"))
 
-    library(lattice)
+library(lattice)
+```
 
     ## Warning: package 'lattice' was built under R version 3.2.3
 
-    plotdata <- aggregate(steps ~ interval + weekend, bdata, mean)
-    xyplot(steps ~ interval | factor(weekend), data=plotdata, aspect=2/3, type="l" ,layout = c(1,2))
+``` r
+plotdata <- aggregate(steps ~ interval + weekend, bdata, mean)
+xyplot(steps ~ interval | factor(weekend), data=plotdata, aspect=2/3, type="l" ,layout = c(1,2))
+```
 
-![](PA1_template_files/figure-markdown_strict/unnamed-chunk-9-1.png)<!-- -->
+![](PA1_template_files/figure-markdown_github/unnamed-chunk-9-1.png)<!-- -->
